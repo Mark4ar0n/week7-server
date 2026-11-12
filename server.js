@@ -1,129 +1,48 @@
+
 const express = require('express');
 const app = express();
 const PORT = 3000;
 
-// ==========================================
-// PART 2: Guided Build — Your First Endpoint
-// ==========================================
-app.get('/', (req, res) => {
-  res.send('Hello API! Your server is running.');
-});
+app.use(express.static(__dirname));
 
-// ==========================================
-// PART 3: Hands-On Practice 1 — Digital Profile API
-// ==========================================
-app.get('/profile', (req, res) => {
-  res.json({
-    name: "Mark Aaron M. Mara", 
-    course: "BS Computer Science",
-    year: "3rd Year",
-    school: "Sacred Heart College"
-  });
-});
+// MENU DATA
+const menuItems = [
+    { id: 1, name: "Chicken Adobo Rice Meal", category: "Rice Meals", price: 65 },
+    { id: 2, name: "Halo-Halo", category: "Desserts", price: 45 },
+    { id: 3, name: "Iced Tea", category: "Drinks", price: 15 },
+    { id: 4, name: "Pancit Canton", category: "Rice Meals", price: 55 },
+    { id: 5, name: "Leche Flan", category: "Desserts", price: 30 }
+];
 
-app.get('/skills', (req, res) => {
-  res.json({
-    skills: ["HTML", "CSS", "JavaScript", "Flutter"]
-  });
-});
+// ROUTE 1: GET ALL MENU ITEMS OR FILTER BY CATEGORY
+app.get('/menu', (req, res) => {
+    const { category } = req.query;
 
-// ==========================================
-// PART 4: Hands-On Practice 2 — Sari-Sari Store API
-// ==========================================
-app.get('/store-info', (req, res) => {
-  res.json({
-    store: "Aling Bella's Sari-Sari Store",
-    isOpen: true,
-    hours: {
-      open: "6:00 AM",
-      close: "9:00 PM"
-    },
-    popularItems: ["Puff", "Marshmallows", "Proyo","Coke"],
-    contactNumber: "0917-123-4567"
-  });
-});
+    if (category) {
+        const filtered = menuItems.filter(
+            m => m.category.toLowerCase() === category.toLowerCase()
+        );
 
-// ==========================================
-// CHALLENGE: Launch Your Own Mini Business API
-// Sample Business: QuickClean Printing & Laundry
-// ==========================================
-
-// Endpoint 1: Basic Business Info (Flat Object)
-app.get('/api/business-info', (req, res) => {
-  res.json({
-    businessName: "Yun Oh Laundry Shop & Printing Services",
-    owner: "Mark Aaron",
-    contactNumber: "0918-987-6543",
-    email: "@yun.oh.laundry.shop",
-    isOperational: true
-  });
-});
-
-// Endpoint 2: List of Services (Array)
-app.get('/api/services', (req, res) => {
-  res.json({
-    availableServices: [
-      "Document Printing (B&W / Color)",
-      "Lamination & Binding",
-      "Wash, Dry, & Fold Laundry",
-      "Dry Cleaning",
-      "ID Picture Printing"
-    ]
-  });
-});
-
-// Endpoint 3: Service Rates (Nested Object)
-app.get('/api/pricing', (req, res) => {
-  res.json({
-    printingRates: {
-      blackAndWhite: "₱2 per page",
-      fullColor: "₱5 per page",
-      photoPaper: "₱15 per page"
-    },
-    laundryRates: {
-      regularWash: "₱150 per 7kg load",
-      dryCleaning: "₱250 per piece",
-      expressService: "₱250 per 7kg load"
+        return res.json(filtered);
     }
-  });
+
+    res.json(menuItems);
 });
 
-// Endpoint 4: Active Promos (Array of Objects)
-app.get('/api/promos', (req, res) => {
-  res.json({
-    activePromos: [
-      {
-        code: "STUDENT10",
-        discount: "10% OFF on Printing",
-        validUntil: "2026-12-31"
-      },
-      {
-        code: "LAUNDRY20",
-        discount: "₱20 OFF for loads over 10kg",
-        validUntil: "2026-11-30"
-      }
-    ]
-  });
+// ROUTE 2: GET ONE MENU ITEM BY ID
+app.get('/menu/:id', (req, res) => {
+    const item = menuItems.find(
+        m => m.id === parseInt(req.params.id)
+    );
+
+    if (!item) {
+        return res.status(404).json({ error: "Item not found" });
+    }
+
+    res.json(item);
 });
 
-// Endpoint 5: Operating Schedule (Nested Object)
-app.get('/api/schedule', (req, res) => {
-  res.json({
-    weekdays: {
-      open: "7:00 AM",
-      close: "8:00 PM"
-    },
-    weekends: {
-      open: "8:00 AM",
-      close: "5:00 PM"
-    },
-    holidays: "Closed"
-  });
-});
-
-// ==========================================
-// Start Server
-// ==========================================
+// START SERVER
 app.listen(PORT, () => {
-  console.log(`Server is running at http://localhost:${PORT}`);
+    console.log(`Server running at http://localhost:${PORT}`);
 });

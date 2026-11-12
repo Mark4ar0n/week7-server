@@ -1,0 +1,130 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Canteen Menu</title>
+
+    <!-- EXTERNAL CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <h1>Canteen Menu</h1>
+
+    <div class="filter">
+        <label for="category"><b>Category:</b></label>
+
+        <select id="category">
+            <option value="">All</option>
+            <option value="Rice Meals">Rice Meals</option>
+            <option value="Desserts">Desserts</option>
+            <option value="Drinks">Drinks</option>
+        </select>
+    </div>
+
+    <div class="container">
+
+        <div class="menu-box">
+            <div id="menuList">
+                Loading menu...
+            </div>
+        </div>
+
+        <div class="details-box">
+            <h3>Item Details</h3>
+
+            <div id="details">
+                <p>(click a menu item to load its details)</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+
+        // LOAD MENU
+        async function loadMenu(category = '') {
+
+            try {
+
+                let url = '/menu';
+
+                if (category) {
+                    url += '?category=' + encodeURIComponent(category);
+                }
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                const menuList = document.getElementById('menuList');
+
+                menuList.innerHTML = '';
+
+                data.forEach(item => {
+
+                    const div = document.createElement('div');
+
+                    div.className = 'menu-item';
+
+                    div.innerHTML = `
+                        <div>
+                            <div class="item-name">${item.name}</div>
+                            <div class="item-category">${item.category}</div>
+                        </div>
+
+                        <div class="price">₱${item.price}</div>
+                    `;
+
+                    div.addEventListener('click', function() {
+                        getItemDetails(item.id);
+                    });
+
+                    menuList.appendChild(div);
+
+                });
+
+            } catch (error) {
+                console.error('Error loading menu:', error);
+            }
+        }
+
+
+        // GET ITEM DETAILS
+        async function getItemDetails(id) {
+
+            try {
+
+                const response = await fetch('/menu/' + id);
+                const item = await response.json();
+
+                document.getElementById('details').innerHTML = `
+                    <p>${item.name}</p>
+                    <p>Category: ${item.category}</p>
+                    <p>Price: ₱${item.price}</p>
+                `;
+
+            } catch (error) {
+                console.error('Error loading details:', error);
+            }
+        }
+
+
+        // CATEGORY FILTER
+        document.getElementById('category').addEventListener(
+            'change',
+            function() {
+                loadMenu(this.value);
+            }
+        );
+
+
+        // AUTOMATICALLY LOAD MENU
+        loadMenu();
+
+    </script>
+
+</body>
+</html>
+nod
